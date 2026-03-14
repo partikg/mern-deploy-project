@@ -13,7 +13,7 @@ function App() {
 
   return (
     <div>
-      {health && health.status}
+      {health && `Server says: ${health.status}`}
     </div>
   );
 }
