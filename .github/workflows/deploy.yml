@@ -1,0 +1,35 @@
+name: Deploy MERN App
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-backend:          
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: cd server && npm install
+
+  deploy-frontend:        
+    needs: test-backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: cd client && npm install && npm run build
+      - run: npm install -g netlify-cli
+      - run: cd client && netlify deploy --prod --dir=build --auth=${{ secrets.NETLIFY_TOKEN }} --site=${{ secrets.NETLIFY_SITE_ID }}
+
+  deploy-backend:         
+    needs: test-backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: trigger render deploy
+        run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
